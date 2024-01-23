@@ -1,0 +1,69 @@
+# Devesh Khanna PA11 A1 BATCH TY SoEE
+# AIML MINI PROJECT 
+# ANN - ELECTRICAL FAULTS ANALYSIS & CLASSIFICATION
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+import warnings
+
+import tensorflow as tf
+from tensorflow import keras
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
+
+binary_data = pd.read_csv('../input/electrical-fault-detection-and-classification/detect_dataset.csv')
+multi_data = pd.read_csv('../input/electrical-fault-detection-and-classification/classData.csv')
+
+binary_data.info()
+
+multi_data.info()
+
+binary_data['Output (S)'].value_counts()
+
+plt.pie(x=binary_data['Output (S)'].value_counts(), labels=['No Fault', 'Fault'],
+        explode = [0, 0.2], autopct= '%1.1f%%', labeldistance=1.15,
+       colors=['#0c06c7', '#05daed'])
+plt.show()
+
+lines = [
+    ('Ia', 'Va'),
+    ('Ib', 'Vb'),
+    ('Ic', 'Vc')
+]
+
+for cola,colb in lines:
+    dist(cola,colb)
+    print('\n')
+
+binary_data.head()
+
+y = binary_data.iloc[:,0]
+X = binary_data.iloc[:,1:7]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1)
+X_train.shape, X_test.shape, y_train.shape, y_test.shape
+
+print(f'Accuracy Score: {accuracy_score(y_test, y_pred)*100:.03f}%')
+print(f'Precision Score: {precision_score(y_test, y_pred)*100:.03f}%')
+print(f'Recall Score: {recall_score(y_test, y_pred)*100:.03f}%')
+
+plt.figure(figsize=(18,12))
+sns.heatmap(multi_data.corr(), annot=True, cmap='Blues')
+plt.show()
+
+for cola, colb in lines:
+    dist(cola,colb)
+    print('\n')
+
+plt.pie(multi_data['faultType'].value_counts(), autopct='%1.1f%%',
+       labels=['No Fault', 'LLG Fault', 'LLLG Fault', 'LG Fault', 'LLL Fault', 'LL Fault'])
+plt.show()
+
+print(f'Accuracy Score : {accuracy_score(y_test, y_pred)*100:.03f}%')
+
+print(classification_report(y_test, y_pred))
+
