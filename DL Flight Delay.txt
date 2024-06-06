@@ -1,0 +1,53 @@
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
+data = pd.read_csv('flight_delay_predict.csv')
+
+data.head()
+
+avg_delay_by_origin = data.groupby('Origin')['ArrDelay'].mean().reset_index()
+bar_plot = px.bar(avg_delay_by_origin, x='Origin', y='ArrDelay', title='Average Arrival Delay by Origin Airport')
+bar_plot.update_layout(xaxis_title='Origin Airport', yaxis_title='Average Arrival Delay')
+bar_plot.show()
+
+numeric_data = data.select_dtypes(include=['number'])
+corr_matrix = numeric_data.corr()
+plt.figure(figsize=(15, 10))
+sns.heatmap(corr_matrix, annot = True)
+
+# Splitting
+X = data[['AirTime', 'Distance']]
+y = data[['ArrDelayMinutes', 'is_delay']]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Scalingscaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+model = Sequential()
+model.add(Dense(64, input_dim=X_train.shape[1], activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(2, activation='linear'))
+model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=5, batch_size=32, verbose=1)
+score, accuracy = model.evaluate(X_test, y_test, verbose=0)
+model.save('model.h5')
+
+# Real-time Prediction
+air_time = float(input("Enter Air Time in minutes: "))
+distance = float(input("Enter Distance in miles: "))
+user_input = np.array([[air_time, distance]])
+user_input_scaled = scaler.transform(user_input)
+predictions = model.predict(user_input_scaled)
+if predictions[0][1] >= 0.5:
+    print(f"The flight is delayed by {predictions[0][0]} minutes.")
+else:
+    print("The flight is not delayed.")
